@@ -1,5 +1,5 @@
 [package]
-name = "learning"
+name = "the-book"
 version = "0.1.0"
 authors = ["Fabio Gavilondo <fgavilondo@icloud.com>"]
 edition = "2018"

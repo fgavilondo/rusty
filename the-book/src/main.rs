@@ -34,32 +34,43 @@ fn ch3_common_concepts_variables() {
     // immutable after those transformations have been completed.
     // Because we’re effectively creating a new variable when we use the let keyword again,
     // we can change the type of the value but reuse the same name:
-    let dashes = "---";
+    let dashes = "---"; // String literals are slices! (see below)
     println!("dashes as &str: {}", dashes);
     let dashes = dashes.len();
     println!("shadowed dashes:  {}", dashes);
 
-    // note: String not the same as &str
-    let mut dashes: String = String::from("---");
-    println!("dashes as String: {}", dashes);
-    dashes.push('=');
-    println!("dashes modified: {}", dashes);
-    let a_slice = &dashes[3..];
-    println!("slice 3..len: {}", a_slice);
-    dashes.clear();
-    println!("dashes cleared: {}", dashes);
-
-    // str is an immutable1 sequence of UTF-8 bytes of dynamic length somewhere in memory.
+    // Note: String not the same as &str
+    // str is an immutable sequence of UTF-8 bytes of dynamic length somewhere in memory.
     // Since the size is unknown, one can only handle it behind a pointer.
     // This means that str most commonly2 appears as &str: a reference to some UTF-8 data,
     // normally called a "string slice" or just a "slice".
 
     // String is the dynamic heap string type, like Vec: use it when you need to own or modify
-    // your string data.
+    // your string data. String keeps the buffer and is very practical to use.
 
-    // String keeps the buffer and is very practical to use. &str is lightweight and should be used
-    // to "look" into strings. You can search, split, parse, and even replace chunks without
-    // needing to allocate new memory.
+    // &str is lightweight and should be used to "look" into strings.
+    // You can search, split, parse, and even replace chunks without needing to allocate new memory.
+
+    let s = String::from("hello world");
+    let hello = &s[0..5];
+    let world = &s[6..11];
+    println!("string slices: {} {}", hello, world);
+
+    let mut dashes: String = String::from("---");
+    println!("dashes as String: {}", dashes);
+    dashes.push('=');
+    println!("dashes modified: {}", dashes);
+    let str_slice = &dashes[1..];
+    println!("slice 3..len: {}", str_slice);
+    dashes.clear();
+    println!("dashes cleared: {}", dashes);
+
+    // String slices, as you might imagine, are specific to strings.
+    // But there’s a more general slice type, too. Consider this array:
+
+    let a = [1, 2, 3, 4, 5];
+    let arr_slice = &a[1..3];
+    println!("array slice: {:?}", arr_slice);
 }
 
 fn type_of<T>(_: &T) -> &'static str {
@@ -94,7 +105,7 @@ fn ch3_common_concepts_scalar_data_types() {
     println!("Type of c = {}", type_of(&c));
 }
 
-fn plus_one(arr: &mut [i32; 5]) {
+fn each_plus_one(arr: &mut [i32; 5]) {
     for i in 0..arr.len() {
         arr[i] = arr[i] + 1;
     }
@@ -132,8 +143,8 @@ fn ch3_common_concepts_compound_data_types() {
     println!("arr1 = {:?}", arr1);
     println!("Fist elem: {}", arr1[0]);
     println!("Last elem: {}", arr1[4]);
-    // Runtime exception 'index out of bounds: the len is 5 but the index is 10'
-    // println!("{}", arr[5]);
+    // Runtime exception 'index out of bounds: the len is 5 but the index is 5'
+    // println!("{}", arr1[5]);
 
     // Create an array that contains the same value for each element:
     let mut arr2 = [3; 5]; // same as let a = [3, 3, 3, 3, 3];
@@ -141,8 +152,8 @@ fn ch3_common_concepts_compound_data_types() {
 
     // iterating over arrays and modifying elements
 
-    plus_one(&mut arr2);
-    println!("After plus_one() = {:?}", arr2); //  [4, 4, 4, 4, 4];
+    each_plus_one(&mut arr2);
+    println!("After each_plus_one() = {:?}", arr2); //  [4, 4, 4, 4, 4];
 
     println!();
     println!("Vector (Note: not a Compound Data Type!)");
@@ -203,20 +214,35 @@ fn ch3_common_concepts_control_flow() {
     println!("LIFTOFF!!!");
 
     println!();
-    println!("looping through a collection with 'for'");
+    println!("looping through an array with 'for'");
     let mut arr = [10, 20, 30, 40, 50];
+
     for element in arr.iter() {
-        println!("the value is: {}", element);
+        println!("array elem value: {}", element);
     }
 
     for i in 0..arr.len() {
+        println!("array elem {} = {}", i, arr[i]);
         arr[i] = arr[i] + 1;
+        println!("  array elem {} = {}", i, arr[i]);
     }
 
-    for number in (1..4).rev() { // range
+    for number in 1..4 { // range
         println!("{}", number);
     }
     println!("LIFTOFF!!!");
+
+    for number in (1..4).rev() { // reverse range
+        println!("{}", number);
+    }
+    println!("LIFTOFF!!!");
+
+    println!();
+    println!("looping through a vector with 'for'");
+    let v = vec![1, 2, 3, 4, 5];
+    for element in v.iter() {
+        println!("vector elem value: {}", element);
+    }
 }
 
 fn ch4_ownership_move_with_variables() {
@@ -224,12 +250,24 @@ fn ch4_ownership_move_with_variables() {
     println!("4. Ownership - Move - Variables");
     println!();
 
+    // For primitive (scalar) types, an assignment is a copy, not a move,
+    // as these are stack values, there is no heap memory to keep track of.
+    // Stack values implement the Copy trait.
+
+    let i = 42;
+    let i_copy = i;
+    println!("i = {}", i);
+    println!("i_copy = {}", i_copy);
+
+    // However, for heap variables an assignment transfers ownership:
+
     let s = String::from("hello"); // s comes into scope
     let s2 = s; // s2 takes ownership of the value "hello"
     // allocated heap memory will be freed when s2 goes out of scope (s is ignored from now on)
     println!("s2 = {}", s2);
-    // Move is like a "shallow copy", but once you move ownership,
-    // you cannot use the old variable anymore:
+    // Move is like a "shallow copy", meaning we copy the pointer, the length, and the capacity
+    // that are on the stack. We do not copy the data on the heap that the pointer refers to.
+    // But once you move ownership, you cannot use the old variable anymore:
     // println!("s = {}", s); // compile error: "value borrowed here after move"
 
     // use clone() for "deep copy"
@@ -237,19 +275,18 @@ fn ch4_ownership_move_with_variables() {
     println!("s2clone = {}", s2_clone);
     // you can still use the cloned variable as the clone is a separate copy, not a move
     println!("s2 = {}", s2);
-
-    // note hat for primitive (scalar) types, an assignment is a copy, not a move,
-    // as these are stack values, there is no heap memory to keep track of
-
-    let i = 42;
-    let i2 = i;
-    println!("i = {}", i);
-    println!("i_copy = {}", i2);
 }
 
 fn takes_ownership(some_string: String) { // some_string comes into scope
     println!("some_string = {}", some_string);
     // Here, some_string goes out of scope and `drop` is called. The backing memory is freed.
+}
+
+// takes_and_gives_back will take a String and return one
+fn takes_and_gives_back(a_string: String) -> String {
+    // a_string comes into scope
+    a_string
+    // a_string is returned and moves out to the calling function
 }
 
 fn makes_copy(some_integer: i32) { // some_integer comes into scope
@@ -262,13 +299,6 @@ fn gives_ownership() -> String {
     let s = String::from("i came from a function"); // s comes into scope
     s
     // s is returned and moves out to the calling function
-}
-
-// takes_and_gives_back will take a String and return one
-fn takes_and_gives_back(a_string: String) -> String {
-    // a_string comes into scope
-    a_string
-    // a_string is returned and moves out to the calling function
 }
 
 fn calculate_length_moved(s: String) -> (String, usize) {
@@ -343,6 +373,11 @@ fn ch4_ownership_borrow() {
     println!("4. Ownership - References and Borrowing");
     println!();
 
+    // The Rules of References:
+    // * At any given time, you can have either one mutable reference or any number of immutable references.
+    // * References must always be valid.
+
+
     // The issue with the calculate_length_moved() function is that we have to return the String to
     // the calling function so we can still use the String after the call to calculate_length,
     // because the String was moved into calculate_length.
@@ -395,6 +430,7 @@ fn ch4_ownership_borrow() {
     let r4 = &s3; // no problem
     // Compile error[E0502]: cannot borrow `s3` as mutable because it is also borrowed as immutable
     // let r5 = &mut s3; // BIG PROBLEM
+
     println!("{}, {}", r3, r4);
 
     // any borrow must last for less than the scope of the owner
@@ -402,7 +438,7 @@ fn ch4_ownership_borrow() {
 
 fn main() {
     println!();
-    println!("Learning Rust!");
+    println!("Learning Rust from https://doc.rust-lang.org/book/title-page.html");
 
     ch3_common_concepts_variables();
     ch3_common_concepts_scalar_data_types();
