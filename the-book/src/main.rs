@@ -436,6 +436,40 @@ fn ch4_ownership_borrow() {
     // any borrow must last for less than the scope of the owner
 }
 
+struct User {
+    username: String,
+    email: String,
+    sign_in_count: u64,
+    active: bool,
+}
+
+fn build_user_using_field_init_shorthands(email: String, username: String) -> User {
+    // possible because the parameter names and the struct field names are exactly the same
+    User {
+        email,
+        username,
+        active: true,
+        sign_in_count: 1,
+    }
+}
+
+fn ch5_structs() {
+    println!("5. Structs");
+
+    let user1 = User {
+        email: String::from("someone@example.com"),
+        username: String::from("someusername1"),
+        active: true,
+        sign_in_count: 1,
+    };
+    println!("user1: {:#?}", user1);
+
+    let mut user2 = build_user_using_field_init_shorthands(String::from("someone@example.com"),
+                                                           String::from("someusername2"));
+    user2.email = String::from("anotheremail@example.com"); // must be mutable
+    println!("user2: {:#?}", user2);
+}
+
 fn main() {
     println!();
     println!("Learning Rust from https://doc.rust-lang.org/book/title-page.html");
@@ -448,5 +482,7 @@ fn main() {
     ch4_ownership_move_with_variables();
     ch4_ownership_move_with_functions();
     ch4_ownership_borrow();
+
+    ch5_structs();
 }
 
