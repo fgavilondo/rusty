@@ -436,6 +436,7 @@ fn ch4_ownership_borrow() {
     // any borrow must last for less than the scope of the owner
 }
 
+#[derive(Debug)] // needed so we can print it out with {:#?}
 struct User {
     username: String,
     email: String,
@@ -454,6 +455,7 @@ fn build_user_using_field_init_shorthands(email: String, username: String) -> Us
 }
 
 fn ch5_structs() {
+    println!();
     println!("5. Structs");
 
     let user1 = User {
@@ -466,7 +468,7 @@ fn ch5_structs() {
 
     let mut user2 = build_user_using_field_init_shorthands(String::from("someone@example.com"),
                                                            String::from("someusername2"));
-    user2.email = String::from("anotheremail@example.com"); // must be mutable
+    user2.email = String::from("anotheremail@example.com"); // user2 must be mutable
     println!("user2: {:#?}", user2);
 }
 
