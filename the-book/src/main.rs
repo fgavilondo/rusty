@@ -429,10 +429,12 @@ fn ch4_ownership_borrow() {
     let r2 = &mut s2_mut;
     println!("r2 = {}", r2);
 
-    // We also cannot have a mutable reference while we have an immutable one:
-    let mut s3 = String::from("hello"); // warning: variable does not need to be mutable
+    // warning: variable does not need to be mutable
+    let mut s3 = String::from("hello");
     let r3 = &s3; // no problem
     let r4 = &s3; // no problem
+
+    // We also cannot have a mutable reference while we have an immutable one:
     // Compile error[E0502]: cannot borrow `s3` as mutable because it is also borrowed as immutable
     // let r5 = &mut s3; // BIG PROBLEM
 
@@ -544,6 +546,102 @@ fn ch5_struct_newtypes() {
     println!("Type of distance = {}", type_of(&distance));
 }
 
+fn ch5_methods() {
+    println!();
+    println!("5. Methods");
+    println!();
+
+    // methods are different from functions in that they’re defined within the context of a struct
+    // (or an enum or a trait object), and their first parameter is always self, which represents the instance of
+    // the struct the method is being called on.
+
+    #[derive(Debug)]
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+
+    impl Rectangle {
+        fn area(&self) -> u32 {
+            self.width * self.height
+        }
+
+        fn perimeter(&self) -> u32 {
+            (self.width + self.height) * 2
+        }
+
+        fn can_hold(&self, other: &Rectangle) -> bool {
+            self.width > other.width && self.height > other.height
+        }
+
+        // If we wanted to change the instance that we’ve called the method on as part of what the method does,
+        // we’d use &mut self as the first parameter.
+        fn initialize(&mut self) {
+            self.width = 0;
+            self.height = 0;
+        }
+
+        // Associated Functions:
+        // Se’re allowed to define functions within impl blocks that don’t take self as a parameter.
+        // These are called associated functions because they’re associated with the struct. They’re still functions,
+        // not methods, because they don’t have an instance of the struct to work with.
+        // Associated Functions are useful as "factory methods" (example: String::from)
+        fn square(size: u32) -> Rectangle {
+            Rectangle {
+                width: size,
+                height: size,
+            }
+        }
+    }
+
+    // Each struct is allowed to have multiple impl blocks.
+    // There’s no reason to separate these methods into multiple impl blocks in this case, but this is valid syntax.
+    // Multiple impl blocks are useful for generic types and traits (chapter 10).
+    impl Rectangle {
+        fn transform_and_consume(self) -> (u32, u32) {
+            // Having a method that takes ownership of the instance by using just self as the first parameter is rare;
+            // this technique is usually used when the method transforms self into something else and you want to
+            // prevent the caller from using the original instance after the transformation.
+            return (self.width, self.height);
+        }
+    }
+
+    let mut rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
+    let rect2 = Rectangle {
+        width: 10,
+        height: 40,
+    };
+    let rect3 = Rectangle {
+        width: 60,
+        height: 45,
+    };
+
+    println!("rect1: {:?}", rect1);
+    println!("The area of the rectangle is {} square pixels.", rect1.area());
+    println!("The perimeter of the rectangle is {} pixels.", rect1.perimeter());
+
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+
+    rect1.initialize();
+    println!("rect1 (initialized): {:?}", rect1);
+    let (w, h) = rect1.transform_and_consume();
+    println!("w: {}, h: {}", w, h);
+    // println!("rect1: {:?}", rect1); // borrow of moved value: `rect1`
+
+    let sq = Rectangle::square(3);
+    println!("sq (created via Associated Function): {:?}", sq);
+}
+
+fn ch6_enums() {
+    println!();
+    println!("6. Enums");
+    println!();
+}
+
 fn main() {
     println!();
     println!("Learning Rust from https://doc.rust-lang.org/book/title-page.html");
@@ -560,5 +658,8 @@ fn main() {
     ch5_structs();
     ch5_tuple_structs();
     ch5_struct_newtypes();
+    ch5_methods();
+
+    ch6_enums();
 }
 
