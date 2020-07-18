@@ -714,10 +714,79 @@ fn ch6_option_enum() {
     println!("Sum (even more concise) = {}", sum);
 }
 
+#[derive(Debug)]
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+fn value_in_cents(coin: &Coin) -> u8 {
+    match coin {
+        // A match arm has two parts: a pattern and some code
+        Coin::Penny => {
+            println!("Lucky penny!");
+            1
+        }
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+
+fn plus_one(x: Option<i32>) -> Option<i32> {
+    match x {
+        None => None,
+        Some(i) => Some(i + 1),
+    }
+}
+
 fn ch6_pattern_matching() {
     println!();
     println!("6. Pattern matching");
     println!();
+
+    // Rust has an extremely powerful control flow operator called match that allows you to compare a value against a
+    // series of patterns and then execute code based on which pattern matches. Patterns can be made up of literal
+    // values, variable names, wildcards, and many other things. The power of match comes from the expressiveness
+    // of the patterns and the fact that the compiler confirms that all possible cases are handled.
+
+    let coin = Coin::Dime;
+    println!("value of {:?} = {} cents", coin, value_in_cents(&coin));
+
+    // Matching with Option<T>
+    let five = Some(5);
+    let six = plus_one(five);
+    println!("six: {:?}", six);
+    let none = plus_one(None);
+    println!("none: {:?}", none);
+
+    // The _ placeholder
+    // Rust also has a pattern we can use when we don’t want to list all possible values.
+    let some_u8_value = 7u8;
+    match some_u8_value {
+        1 => println!("one"),
+        3 => println!("three"),
+        5 => println!("five"),
+        7 => println!("seven"),
+        _ => (),
+    }
+
+    // The if let syntax lets you combine if and let into a less verbose way to handle values that match one pattern
+    // while ignoring the rest.
+    // Consider this code that matches on an Option<u8> value but only wants to execute code if the value is 3.
+    let some_u8_value = Some(0u8);
+    match some_u8_value {
+        Some(3) => println!("three"),
+        _ => (),
+    }
+    // Instead, we could write this in a shorter way using if let.
+    // You can think of if let as syntax sugar for a match that runs code when the value matches one pattern and
+    // then ignores all other values.
+    if let Some(3) = some_u8_value {
+        println!("three");
+    }
 }
 
 fn main() {
