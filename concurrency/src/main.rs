@@ -3,12 +3,14 @@ use chrono::{DateTime, Utc};
 #[derive(Debug)]
 struct Participant {
     name: String,
+    joined: DateTime<Utc>,
 }
 
 impl Participant {
     fn new(name: &str) -> Participant {
         Participant {
             name: String::from(name),
+            joined: Utc::now(),
         }
     }
 
