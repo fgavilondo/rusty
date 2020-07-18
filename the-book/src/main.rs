@@ -192,6 +192,10 @@ fn ch3_common_concepts_control_flow() {
     };
     println!("condition = {}, i = {}", condition, i);
 
+    // Note there is no Ternary Conditional Operator in Rust! Must use if-expression as above.
+    // syntax error:
+    // let i = condition? 5 : 6;
+
     println!();
     println!("loops");
     // Loops are expressions too:
@@ -636,9 +640,83 @@ fn ch5_methods() {
     println!("sq (created via Associated Function): {:?}", sq);
 }
 
+#[derive(Debug)]
+enum IpAddr {
+    V4(u8, u8, u8, u8),
+    V6(String),
+}
+
+// Like structs, enums can have methods too
+impl IpAddr {
+    fn home() -> IpAddr {
+        return IpAddr::V4(127, 0, 0, 1);
+    }
+}
+
+fn route(ip_addr: IpAddr) {
+    println!("Routing {:?}", ip_addr);
+}
+
 fn ch6_enums() {
     println!();
     println!("6. Enums");
+    println!();
+
+    // Enums are a feature in many languages, but their capabilities differ in each language.
+    // Rust’s enums are most similar to algebraic data types in functional languages, such as F#, OCaml, and Haskell.
+
+    let home = IpAddr::home();
+    let loopback = IpAddr::V6(String::from("::1"));
+
+    route(home);
+    route(loopback);
+}
+
+fn ch6_option_enum() {
+    println!();
+    println!("6. Option Enum");
+    println!();
+
+    // Option is an enum defined by the standard library.
+    // It encodes the very common scenario in which a value could be something or it could be nothing.
+    // Expressing this concept in terms of the type system means the compiler can check whether you’ve handled all the
+    // cases you should be handling; this functionality can prevent bugs that are extremely common in other
+    // programming languages (e.g. Java's NullPointerException).
+    // Rust doesn’t have the null feature that many other languages have. However, the concept that null is trying to
+    // express is still a useful one: a null is a value that is currently invalid or absent for some reason.
+    //    enum Option<T> {
+    //      Some(T),
+    //      None,
+    //    }
+
+    // we need to tell Rust what type of Option<T> we have, because the compiler can’t infer the type that the
+    // Some variant will hold by looking only at a None value.
+    let absent_number: Option<i32> = None;
+    println!("type_of(absent_number): {}", type_of(&absent_number));
+
+    // So why is having Option<T> any better than having null?
+    // In short, because Option<T> and T (where T can be any type) are different types, the compiler won’t let us
+    // use an Option<T> value as if it were definitely a valid value.
+    // When we have an Option<T> we have to worry about possibly not having a value, and the compiler will make sure
+    // we handle that case before using the value.
+    // In other words, you have to convert an Option<T> to a T before you can perform T operations with it.
+    // Generally, this helps catch one of the most common issues with null: assuming that something isn’t null
+    // when it actually is.
+
+    let x: i8 = 4;
+    let y: Option<i8> = Some(6);
+    // error[E0277]: cannot add `std::option::Option<i8>` to `i8`
+    // let sum = x + y;
+    let sum = if y.is_none() { x } else { x + y.unwrap() };
+    println!("Sum x + y = {}", sum);
+
+    let sum = x + y.unwrap_or(0);
+    println!("Sum (even more concise) = {}", sum);
+}
+
+fn ch6_pattern_matching() {
+    println!();
+    println!("6. Pattern matching");
     println!();
 }
 
@@ -661,5 +739,7 @@ fn main() {
     ch5_methods();
 
     ch6_enums();
+    ch6_option_enum();
+    ch6_pattern_matching();
 }
 
