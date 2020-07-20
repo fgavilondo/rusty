@@ -30,6 +30,6 @@ fn main() {
     chapter6::option_enum();
     chapter6::pattern_matching();
 
-    chapter8::collections();
+    chapter8::collections_vectors();
 }
 
