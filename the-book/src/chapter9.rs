@@ -14,7 +14,7 @@ use std::io::Read;
 
 pub(crate) fn error_handling_panic() {
     println!();
-    println!("9. Error Handling - panic!");
+    println!("9. Error Handling - panic! macro");
     println!();
 
     // Sometimes, bad things happen in your code, and there’s nothing you can do about it. In these cases,
