@@ -1,6 +1,6 @@
 use crate::typeutils;
 
-pub(crate) fn common_concepts_variables() {
+pub(crate) fn variables() {
     // You declare constants using the const keyword instead of the let keyword, and the type of the
     // value MUST be annotated:
     const CONST_FIVE: u32 = 5;
@@ -73,7 +73,7 @@ pub(crate) fn common_concepts_variables() {
     println!("array slice: {:?}", arr_slice); // [2, 3]
 }
 
-pub(crate) fn common_concepts_scalar_data_types() {
+pub(crate) fn scalar_data_types() {
     println!();
     println!("3.2.1 Scalar Data Types");
     println!();
@@ -107,7 +107,7 @@ fn each_plus_one(arr: &mut [i32; 5]) {
     }
 }
 
-pub(crate) fn common_concepts_compound_data_types() {
+pub(crate) fn compound_data_types() {
     println!();
     println!("3.2.2 Compound Data Types");
     println!();
@@ -161,7 +161,7 @@ pub(crate) fn common_concepts_compound_data_types() {
     println!("v = {:?}", v);
 }
 
-pub(crate) fn common_concepts_control_flow() {
+pub(crate) fn control_flow() {
     println!();
     println!("3.4 Control Flow");
     println!();

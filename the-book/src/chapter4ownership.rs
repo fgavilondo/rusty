@@ -1,4 +1,4 @@
-pub(crate) fn ownership_move_with_variables() {
+pub(crate) fn move_with_variables() {
     println!();
     println!("4. Ownership - Move - Variables");
     println!();
@@ -63,7 +63,7 @@ fn calculate_length_moved(s: String) -> (String, usize) {
     (s, length)
 }
 
-pub(crate) fn ownership_move_with_functions() {
+pub(crate) fn move_with_functions() {
     println!();
     println!("4. Ownership - Move - Functions");
     println!();
@@ -126,7 +126,7 @@ fn change_borrowed_mutable(some_string: &mut String) {
     some_string.push_str(", world");
 }
 
-pub(crate) fn ownership_borrow() {
+pub(crate) fn borrow() {
     println!();
     println!("4. Ownership - References and Borrowing");
     println!();

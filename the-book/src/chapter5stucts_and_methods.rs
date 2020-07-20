@@ -20,7 +20,7 @@ fn build_user_using_field_init_shorthands(email: String, username: String, count
     }
 }
 
-pub(crate) fn structs() {
+pub(crate) fn plain_structs() {
     println!();
     println!("5. Structs");
     println!();

@@ -12,7 +12,7 @@ use std::io::Read;
 // Rust doesn’t have exceptions. Instead, it has the type Result<T, E> for recoverable errors
 // and the panic! macro that stops execution when the program encounters an unrecoverable error.
 
-pub(crate) fn error_handling_panic() {
+pub(crate) fn panic() {
     println!();
     println!("9. Error Handling - panic! macro");
     println!();
@@ -25,7 +25,7 @@ pub(crate) fn error_handling_panic() {
     // panic!("crash and burn"); // thread 'main' panicked at ...
 }
 
-pub(crate) fn error_handling_result() {
+pub(crate) fn result() {
     println!();
     println!("9. Error Handling - Result");
     println!();
