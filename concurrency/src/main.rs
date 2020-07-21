@@ -8,21 +8,21 @@ use chrono::{DateTime, Utc};
 const NUMBER_OF_STUDENTS: u8 = 3;
 const NUMBER_OF_CONCEPTS: u8 = 5;
 
-pub fn type_of<T>(_: &T) -> &'static str {
-    std::any::type_name::<T>()
-}
+// pub fn type_of<T>(_: &T) -> &'static str {
+//     std::any::type_name::<T>()
+// }
 
 #[derive(Debug)]
 struct ChatMessage {
-    name: String,
+    username: String,
     text: String,
     timestamp: DateTime<Utc>,
 }
 
 impl ChatMessage {
-    fn new(name: &str, text: &str) -> Self {
+    fn new(username: &str, text: &str) -> Self {
         Self {
-            name: String::from(name),
+            username: String::from(username),
             text: String::from(text),
             timestamp: Utc::now(),
         }
@@ -44,10 +44,8 @@ impl Chat {
     }
 }
 
-#[derive(Debug)]
 struct Student {
     name: String,
-    joined: DateTime<Utc>,
     tx: Sender<ChatMessage>,
 }
 
@@ -55,7 +53,6 @@ impl Student {
     fn new(name: &str, tx: Sender<ChatMessage>) -> Self {
         Self {
             name: String::from(name),
-            joined: Utc::now(),
             tx,
         }
     }
@@ -69,7 +66,6 @@ impl Student {
     }
 }
 
-#[derive(Debug)]
 struct Presenter {
     name: String,
 }
