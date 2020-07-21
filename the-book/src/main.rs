@@ -7,6 +7,7 @@ mod chapter8collections;
 mod chapter9error_handling;
 mod chapter10generics;
 mod chapter11unit_tests;
+mod chapter15concurrency;
 // the above lines tell Rust to load the contents of the modules from files with the same name as the module
 
 // Based on online book: The Rust Programming Language
@@ -45,5 +46,7 @@ fn main() {
     chapter10generics::generic_types();
     chapter10generics::traits();
     chapter10generics::lifetimes();
+
+    chapter15concurrency::threads();
 }
 
