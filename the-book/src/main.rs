@@ -6,6 +6,7 @@ mod chapter6enums_and_patterns;
 mod chapter8collections;
 mod chapter9error_handling;
 mod chapter10generics;
+mod chapter11tests;
 // the above lines tell Rust to load the contents of the modules from files with the same name as the module
 
 // Based on online book: The Rust Programming Language

@@ -103,65 +103,66 @@ pub(crate) fn struct_newtypes() {
     println!("Type of distance = {}", typeutils::type_of(&distance));
 }
 
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+// Methods are different from functions in that they’re defined within the context of a struct
+// (or an enum or a trait object), and their first parameter is always self, which represents the instance of
+// the struct the method is being called on.
+
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+
+    fn perimeter(&self) -> u32 {
+        (self.width + self.height) * 2
+    }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+
+    // If we wanted to change the instance that we’ve called the method on as part of what the method does,
+    // we’d use &mut self as the first parameter.
+    fn initialize(&mut self) {
+        self.width = 0;
+        self.height = 0;
+    }
+
+    // Associated Functions:
+    // Se’re allowed to define functions within impl blocks that don’t take self as a parameter.
+    // These are called associated functions because they’re associated with the struct. They’re still functions,
+    // not methods, because they don’t have an instance of the struct to work with.
+    // Associated Functions are useful as "factory methods" (example: String::from)
+    fn square(size: u32) -> Rectangle {
+        Rectangle {
+            width: size,
+            height: size,
+        }
+    }
+}
+
+// Each struct is allowed to have multiple impl blocks.
+// There’s no reason to separate these methods into multiple impl blocks in this case, but this is valid syntax.
+// Multiple impl blocks are useful for generic types and traits (chapter 10).
+impl Rectangle {
+    fn transform_and_consume(self) -> (u32, u32) {
+        // Having a method that takes ownership of the instance by using just self as the first parameter is rare;
+        // this technique is usually used when the method transforms self into something else and you want to
+        // prevent the caller from using the original instance after the transformation.
+        return (self.width, self.height);
+    }
+}
+
 pub(crate) fn methods() {
     println!();
     println!("5. Methods");
     println!();
 
-    // methods are different from functions in that they’re defined within the context of a struct
-    // (or an enum or a trait object), and their first parameter is always self, which represents the instance of
-    // the struct the method is being called on.
-
-    #[derive(Debug)]
-    struct Rectangle {
-        width: u32,
-        height: u32,
-    }
-
-    impl Rectangle {
-        fn area(&self) -> u32 {
-            self.width * self.height
-        }
-
-        fn perimeter(&self) -> u32 {
-            (self.width + self.height) * 2
-        }
-
-        fn can_hold(&self, other: &Rectangle) -> bool {
-            self.width > other.width && self.height > other.height
-        }
-
-        // If we wanted to change the instance that we’ve called the method on as part of what the method does,
-        // we’d use &mut self as the first parameter.
-        fn initialize(&mut self) {
-            self.width = 0;
-            self.height = 0;
-        }
-
-        // Associated Functions:
-        // Se’re allowed to define functions within impl blocks that don’t take self as a parameter.
-        // These are called associated functions because they’re associated with the struct. They’re still functions,
-        // not methods, because they don’t have an instance of the struct to work with.
-        // Associated Functions are useful as "factory methods" (example: String::from)
-        fn square(size: u32) -> Rectangle {
-            Rectangle {
-                width: size,
-                height: size,
-            }
-        }
-    }
-
-    // Each struct is allowed to have multiple impl blocks.
-    // There’s no reason to separate these methods into multiple impl blocks in this case, but this is valid syntax.
-    // Multiple impl blocks are useful for generic types and traits (chapter 10).
-    impl Rectangle {
-        fn transform_and_consume(self) -> (u32, u32) {
-            // Having a method that takes ownership of the instance by using just self as the first parameter is rare;
-            // this technique is usually used when the method transforms self into something else and you want to
-            // prevent the caller from using the original instance after the transformation.
-            return (self.width, self.height);
-        }
-    }
 
     let mut rect1 = Rectangle {
         width: 30,
@@ -191,4 +192,43 @@ pub(crate) fn methods() {
 
     let sq = Rectangle::square(3);
     println!("sq (created via Associated Function): {:?}", sq);
+}
+
+// Unit tests go in the same files as the code
+
+#[cfg(test)]
+mod tests {
+    // The tests module is a regular module that follows the usual visibility rules.
+    // Because the tests module is an inner module, we need to bring the code under test in the outer module into the
+    // scope of the inner module.
+    // We use a glob here so anything we define in the outer module is available to this tests module.
+    use super::*;
+
+    #[test]
+    fn larger_rectangle_can_hold_smaller() {
+        let larger = Rectangle {
+            width: 8,
+            height: 7,
+        };
+        let smaller = Rectangle {
+            width: 5,
+            height: 1,
+        };
+
+        assert!(larger.can_hold(&smaller));
+    }
+
+    #[test]
+    fn smaller_rectangle_cannot_hold_larger() {
+        let larger = Rectangle {
+            width: 8,
+            height: 7,
+        };
+        let smaller = Rectangle {
+            width: 5,
+            height: 1,
+        };
+
+        assert!(!smaller.can_hold(&larger));
+    }
 }
