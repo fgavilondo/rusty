@@ -100,11 +100,13 @@ pub(crate) fn generic_types() {
     println!("distance = {}", distance);
 }
 
-// The Summary trait would also need to be a public trait for another crate to implement it.
+// The Summary trait needs to be public if we wanted other crates to implement it.
 pub trait Summary {
     fn summarize(&self) -> String;
 }
 
+// Note: we can use the pub keyword to decide which modules, types, functions, and methods in our code should be public,
+// and by default everything else is private.
 pub struct Tweet {
     pub username: String,
     pub content: String,
@@ -113,6 +115,7 @@ pub struct Tweet {
 }
 
 impl Summary for Tweet {
+    // Trait methods share the visibility of the trait (Summary), so `pub` is unnecessary (and is a compile error)
     fn summarize(&self) -> String {
         format!("{}", self.content)
     }
