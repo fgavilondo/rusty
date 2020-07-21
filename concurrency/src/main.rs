@@ -1,3 +1,5 @@
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
@@ -38,17 +40,19 @@ trait ChatParticipant {
 struct Student {
     name: String,
     joined: DateTime<Utc>,
+    tx: Sender<String>,
 }
 
 impl Student {
-    fn new(name: &str) -> Self {
+    fn new(name: &str, tx: Sender<String>) -> Self {
         Self {
             name: String::from(name),
             joined: Utc::now(),
+            tx,
         }
     }
 
-    fn chat_away(&self) {
+    fn active_listen(&self) {
         let tid = thread::current().id();
         for i in 1..NUMBER_OF_CONCEPTS + 1 {
             let message = self.chat(format!("Thing #{} understood", i).as_str());
@@ -67,12 +71,14 @@ impl ChatParticipant for Student {
 #[derive(Debug)]
 struct Presenter {
     name: String,
+    rx: Receiver<String>,
 }
 
 impl Presenter {
-    fn new(name: &str) -> Self {
+    fn new(name: &str, rx: Receiver<String>) -> Self {
         Self {
             name: String::from(name),
+            rx,
         }
     }
 
@@ -94,22 +100,22 @@ impl ChatParticipant for Presenter {
 
 fn main() {
     let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::new();
+    let (tx, rx) = mpsc::channel();
 
-    let handle = thread::spawn(|| {
-        let mat = Presenter::new("Mat");
+    let mat = Presenter::new("Mat", rx);
+    // Must use 'move' closure to use variable 'mat' (declared in main thread) in the spawned thread.
+    // Move closure transfers ownership of values from one thread to another.
+    let handle = thread::spawn(move || {
         mat.present();
     });
     thread_handles.push(handle);
 
-    for i in 1..NUMBER_OF_STUDENTS + 1 {
-        // Use 'move' closure to be able to use variable 'i' (declared in main thread) in the spawned thread.
-        // It transfer ownership of values from one thread to another.
-        // This is necessary because Rust can’t tell how long the spawned thread will run, so it doesn’t know if the
-        // reference to i will always be valid.
-        let handle: thread::JoinHandle<()> = thread::spawn(move || {
-            // i+2 to make student number match thread id
-            let student = Student::new(format!("{}{}", "Student_", i + 2).as_str());
-            student.chat_away();
+    for i in 0..NUMBER_OF_STUDENTS {
+        let tx_clone = mpsc::Sender::clone(&tx);
+        // i+3 to make student number match thread id
+        let student = Student::new(format!("{}{}", "Student_", i + 3).as_str(), tx_clone);
+        let handle = thread::spawn(move || {
+            student.active_listen();
         });
         thread_handles.push(handle);
     }
