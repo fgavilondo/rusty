@@ -49,6 +49,12 @@ pub(crate) fn option_enum() {
     //      None,
     //    }
 
+    // if we try to use a variable before giving it a value, we’ll get a compile-time error, which shows that Rust
+    // indeed does not allow null values.
+    let absent_number: i32;
+    // error[E0381]: borrow of possibly-uninitialized variable: `absent_number`
+    // println!("absent_number: {}", absent_number);
+
     // we need to tell Rust what type of Option<T> we have, because the compiler can’t infer the type that the
     // Some variant will hold by looking only at a None value.
     let absent_number: Option<i32> = None;
