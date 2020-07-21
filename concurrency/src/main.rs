@@ -29,10 +29,18 @@ impl ChatMessage {
     }
 }
 
-trait ChatParticipant {
-    fn name(&self) -> &str;
-    fn chat(&self, what: &str) -> ChatMessage {
-        return ChatMessage::new(&self.name(), what);
+struct Chat {
+    rx: Receiver<ChatMessage>,
+}
+
+impl Chat {
+    fn handle_messages(&self) {
+        let tid = thread::current().id();
+        println!("{:?}: Chat is ready", tid);
+        // receiver will block until messages arrive
+        for msg in &self.rx {
+            println!("{:?}: Received {:?}", tid, msg);
+        }
     }
 }
 
@@ -40,11 +48,11 @@ trait ChatParticipant {
 struct Student {
     name: String,
     joined: DateTime<Utc>,
-    tx: Sender<String>,
+    tx: Sender<ChatMessage>,
 }
 
 impl Student {
-    fn new(name: &str, tx: Sender<String>) -> Self {
+    fn new(name: &str, tx: Sender<ChatMessage>) -> Self {
         Self {
             name: String::from(name),
             joined: Utc::now(),
@@ -53,32 +61,23 @@ impl Student {
     }
 
     fn active_listen(&self) {
-        let tid = thread::current().id();
         for i in 1..NUMBER_OF_CONCEPTS + 1 {
-            let message = self.chat(format!("Thing #{} understood", i).as_str());
-            println!("{:?}: {:?}", tid, message);
+            let message = ChatMessage::new(&self.name, format!("Thing #{} understood", i).as_str());
+            self.tx.send(message).unwrap();
             thread::sleep(Duration::from_millis(1200));
         }
-    }
-}
-
-impl ChatParticipant for Student {
-    fn name(&self) -> &str {
-        return self.name.as_str();
     }
 }
 
 #[derive(Debug)]
 struct Presenter {
     name: String,
-    rx: Receiver<String>,
 }
 
 impl Presenter {
-    fn new(name: &str, rx: Receiver<String>) -> Self {
+    fn new(name: &str) -> Self {
         Self {
             name: String::from(name),
-            rx,
         }
     }
 
@@ -86,41 +85,46 @@ impl Presenter {
         let tid = thread::current().id();
         for i in 1..NUMBER_OF_CONCEPTS + 1 {
             println!();
-            println!("{:?}: Thing #{} that is great about Rust...", tid, i);
+            println!("{:?}: {} says: Thing #{} that is great about Rust...", tid, self.name, i);
             thread::sleep(Duration::from_millis(1000));
         }
     }
 }
 
-impl ChatParticipant for Presenter {
-    fn name(&self) -> &str {
-        return self.name.as_str();
-    }
-}
-
 fn main() {
-    let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::new();
+    println!();
+    println!("{:?}: Start of training session", thread::current().id());
+
     let (tx, rx) = mpsc::channel();
 
-    let mat = Presenter::new("Mat", rx);
-    // Must use 'move' closure to use variable 'mat' (declared in main thread) in the spawned thread.
+    // Must use 'move' closure to use variable rx (declared in main thread) in the spawned thread.
     // Move closure transfers ownership of values from one thread to another.
-    let handle = thread::spawn(move || {
-        mat.present();
+    thread::spawn(move || {
+        let chat = Chat {
+            rx,
+        };
+        chat.handle_messages();
+    });
+
+    let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::new();
+
+    let handle = thread::spawn(|| {
+        // Disclaimer: Any resemblance to real persons is purely coincidental!
+        let presenter = Presenter::new("Mat");
+        presenter.present();
     });
     thread_handles.push(handle);
 
-    for i in 0..NUMBER_OF_STUDENTS {
+    for idx in 0..NUMBER_OF_STUDENTS {
         let tx_clone = mpsc::Sender::clone(&tx);
-        // i+3 to make student number match thread id
-        let student = Student::new(format!("{}{}", "Student_", i + 3).as_str(), tx_clone);
         let handle = thread::spawn(move || {
+            let student = Student::new(format!("{}{}", "Student_", idx).as_str(), tx_clone);
             student.active_listen();
         });
         thread_handles.push(handle);
     }
 
-    // block the main thread until all threads have finished
+    // block the main thread until all threads have finished (except the chat, which never finishes)
     for h in thread_handles {
         h.join().unwrap();
     }
