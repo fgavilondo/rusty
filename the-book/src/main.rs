@@ -1,12 +1,12 @@
 mod typeutils;
 mod chapter3commonconcepts;
 mod chapter4ownership;
-mod chapter5stucts_and_methods;
+mod chapter5structs_and_methods;
 mod chapter6enums_and_patterns;
 mod chapter8collections;
 mod chapter9error_handling;
 mod chapter10generics;
-mod chapter11tests;
+mod chapter11unit_tests;
 // the above lines tell Rust to load the contents of the modules from files with the same name as the module
 
 // Based on online book: The Rust Programming Language
@@ -24,10 +24,10 @@ fn main() {
     chapter4ownership::move_with_functions();
     chapter4ownership::borrow();
 
-    chapter5stucts_and_methods::plain_structs();
-    chapter5stucts_and_methods::tuple_structs();
-    chapter5stucts_and_methods::struct_newtypes();
-    chapter5stucts_and_methods::methods();
+    chapter5structs_and_methods::plain_structs();
+    chapter5structs_and_methods::tuple_structs();
+    chapter5structs_and_methods::struct_newtypes();
+    chapter5structs_and_methods::methods();
 
     chapter6enums_and_patterns::enums();
     chapter6enums_and_patterns::option_enum();
