@@ -5,7 +5,7 @@ mod chapter5stucts_and_methods;
 mod chapter6enums_and_patterns;
 mod chapter8collections;
 mod chapter9error_handling;
-mod chapter10generics_and_traits;
+mod chapter10generics;
 // the above lines tell Rust to load the contents of the modules from files with the same name as the module
 
 // Based on online book: The Rust Programming Language
@@ -41,7 +41,8 @@ fn main() {
     let result = chapter9error_handling::propagating_errors_with_operator();
     println!("result {:?}", result);
 
-    chapter10generics_and_traits::generic_types();
-    chapter10generics_and_traits::traits();
+    chapter10generics::generic_types();
+    chapter10generics::traits();
+    chapter10generics::lifetimes();
 }
 
