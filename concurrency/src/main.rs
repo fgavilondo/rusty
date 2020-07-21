@@ -7,8 +7,8 @@ struct Participant {
 }
 
 impl Participant {
-    fn new(name: &str) -> Participant {
-        Participant {
+    fn new(name: &str) -> Self {
+        Self {
             name: String::from(name),
             joined: Utc::now(),
         }
@@ -27,8 +27,8 @@ struct ChatMessage {
 }
 
 impl ChatMessage {
-    fn new(name: &str, text: &str) -> ChatMessage {
-        ChatMessage {
+    fn new(name: &str, text: &str) -> Self {
+        Self {
             name: String::from(name),
             text: String::from(text),
             timestamp: Utc::now(),
