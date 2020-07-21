@@ -260,6 +260,34 @@ pub(crate) fn lifetimes() {
     println!("10. Lifetimes");
     println!();
 
-    // Another kind of generic is called lifetimes. Rather than ensuring that a type has the behavior we want,
-    // lifetimes ensure that references are valid as long as we need them to be.
+    // Another kind of generic is called lifetimes. Every reference in Rust has a lifetime, which is the scope for
+    // which that reference is valid. Most of the time, lifetimes are implicit and inferred, just like most of the time,
+    // types are inferred. We must annotate types when multiple types are possible. In a similar way, we must annotate
+    // lifetimes when the lifetimes of references could be related in a few different ways.
+
+    // The main aim of lifetimes is to prevent dangling references, which cause a program to reference data other than
+    // the data it’s intended to reference.
+
+    let r: &i32 = &1;
+    {
+        let x = 5;
+        // error[E0597]: `x` does not live long enough
+        // r = &x;
+    }
+    println!("r: {}", r);
+
+    // Lifetime Annotation Syntax:
+    // Lifetime annotations describe the relationships of the lifetimes of multiple references to each other without
+    // affecting the lifetimes.
+
+    // Lifetime annotations have a slightly unusual syntax: the names of lifetime parameters must start with an
+    // apostrophe (') and are usually all lowercase and very short, like generic types. Most people use the name 'a.
+    // We place lifetime parameter annotations after the & of a reference, using a space to separate the annotation from
+    // the reference’s type.
+
+    // let r1: &i32;        // a reference
+    // let r2: &'a i32;     // a reference with an explicit lifetime
+    // let rr: &'a mut i32; // a mutable reference with an explicit lifetime
+
+    // TODO rest of chapter 10.3 lifetimes
 }
