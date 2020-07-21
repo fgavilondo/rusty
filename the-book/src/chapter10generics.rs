@@ -112,6 +112,7 @@ pub struct Tweet {
     pub content: String,
     pub reply: bool,
     pub retweet: bool,
+    some_private_field: u8,
 }
 
 impl Summary for Tweet {
@@ -176,6 +177,7 @@ fn returns_summarizable() -> impl Summary {
         ),
         reply: false,
         retweet: false,
+        some_private_field: 1,
     }
 }
 
@@ -226,6 +228,7 @@ pub(crate) fn traits() {
         ),
         reply: false,
         retweet: false,
+        some_private_field: 1,
     };
 
     // Summary trait

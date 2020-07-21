@@ -37,15 +37,27 @@ pub(crate) fn collections_vectors() {
     println!("does_not_exist is {:?}", does_not_exist);
 
 
-    // iterating
-    for i in &v {
+    // https://doc.rust-lang.org/std/iter/#the-three-forms-of-iteration
+    // There are three common methods which can create iterators from a collection:
+    //
+    // iter(), which iterates over &T.
+    // iter_mut(), which iterates over &mut T.
+    // into_iter(), which iterates over T.
+
+    // Rust's for loop syntax is actually sugar for iterators.
+
+    for i in &v { // same as for i in v.iter()
+        println!("{}", i);
+    }
+
+    for i in v { // same as for i in v.into_iter()
         println!("{}", i);
     }
 
     // We can also iterate over mutable references to each element in a mutable vector in order to make changes
     // to all the elements.
-    let mut mut_v = vec![100, 32, 57];
-    for i in &mut mut_v {
+    let mut v = vec![100, 32, 57];
+    for i in &mut v {  // same as for i in v.iter_mut()
         *i += 50;
     }
 
