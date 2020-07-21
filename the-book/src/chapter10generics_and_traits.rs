@@ -1,15 +1,20 @@
-// fn largest<T>(list: &[T]) -> T {
-//     let mut largest = list[0];
-//
-//     for &item in list {
-//         // binary operation `>` cannot be applied to type `T`. `T` might need a bound for `std::cmp::PartialOrd`
-//         if item > largest {
-//             largest = item;
-//         }
-//     }
-//
-//     largest
-// }
+use std::fmt;
+
+// Generics in Function Definitions
+fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
+    let mut largest = list[0];
+
+    for &item in list {
+        // binary operation `>` cannot be applied to type `T`. `T` might need a bound for `std::cmp::PartialOrd`
+        if item > largest {
+            largest = item;
+        }
+    }
+
+    largest
+}
+
+// Generics in Struct Definitions
 
 #[derive(Debug)]
 struct Point<T> {
@@ -35,11 +40,11 @@ pub(crate) fn generic_types() {
     // Generics in Function Definitions
 
     let number_list = vec![34, 50, 25, 100, 65];
-    // let result = largest(&number_list);
-    // println!("The largest number is {}", result);
+    let result = largest(&number_list);
+    println!("The largest number is {}", result);
     let char_list = vec!['y', 'm', 'a', 'q'];
-    // let result = largest(&char_list);
-    // println!("The largest char is {}", result);
+    let result = largest(&char_list);
+    println!("The largest char is {}", result);
 
     // Generics in Struct Definitions
 
@@ -95,21 +100,9 @@ pub(crate) fn generic_types() {
     println!("distance = {}", distance);
 }
 
+// The Summary trait would also need to be a public trait for another crate to implement it.
 pub trait Summary {
     fn summarize(&self) -> String;
-}
-
-pub struct NewsArticle {
-    pub headline: String,
-    pub location: String,
-    pub author: String,
-    pub content: String,
-}
-
-impl Summary for NewsArticle {
-    fn summarize(&self) -> String {
-        format!("{}, by {} ({})", self.headline, self.author, self.location)
-    }
 }
 
 pub struct Tweet {
@@ -121,9 +114,94 @@ pub struct Tweet {
 
 impl Summary for Tweet {
     fn summarize(&self) -> String {
-        format!("{}: {}", self.username, self.content)
+        format!("{}", self.content)
     }
 }
+
+impl fmt::Display for Tweet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Tweet from {}", self.username)
+    }
+}
+
+// Traits as Parameters:
+// Instead of a concrete type for the item parameter, we specify the impl keyword and the trait name. This parameter
+// accepts any type that implements the specified trait.
+// In the body of notify, we can call any methods on item that come from the Summary trait, such as summarize.
+
+// Trait Bound Syntax
+pub fn breaking_news<T: Summary>(item: &T) {
+    println!("Breaking news: {}", item.summarize());
+}
+
+// The impl Trait syntax is convenient and makes for more concise code in simple cases.
+pub fn breaking_news_syntax_sugar(item: &impl Summary) {
+    println!("Breaking news (syntax sugar): {}", item.summarize());
+}
+
+// Specifying Multiple Trait Bounds with the + Syntax
+pub fn notify(item: &(impl Summary + fmt::Display)) {
+    println!("New {}: {}", item, item.summarize());
+}
+
+// Clearer Trait Bounds with where Clauses:
+// Using too many trait bounds has its downsides. Each generic has its own trait bounds, so functions with multiple
+// generic type parameters can contain lots of trait bound information between the function’s name and its parameter
+// list, making the function signature hard to read. For this reason, Rust has alternate syntax for specifying
+// trait bounds inside a where clause after the function signature. So instead of writing this:
+
+fn some_function<T: fmt::Display + Clone, U: Clone + fmt::Debug>(t: &T, u: &U) -> i32 {
+    return 1;
+}
+
+// we can use a where clause, like this:
+
+fn some_function_with_where_clause<T, U>(t: &T, u: &U) -> i32
+    where T: fmt::Display + Clone,
+          U: Clone + fmt::Debug
+{
+    return 1;
+}
+
+// Returning Types that Implement Traits
+
+fn returns_summarizable() -> impl Summary {
+    Tweet {
+        username: String::from("horse_ebooks"),
+        content: String::from(
+            "of course, as you probably already know, people",
+        ),
+        reply: false,
+        retweet: false,
+    }
+}
+
+// Traits with default implementation
+
+pub trait SummaryWithDefaultImplementation {
+    fn summarize_author(&self) -> String;
+
+    // Default implementations can call other methods in the same trait, even if those other methods don’t have a
+    // default implementation. In this way, a trait can provide a lot of useful functionality and only require
+    // implementors to specify a small part of it.
+    fn summarize(&self) -> String {
+        format!("(Read more from {}...)", self.summarize_author())
+    }
+}
+
+pub struct NewsArticle {
+    pub headline: String,
+    pub location: String,
+    pub author: String,
+    pub content: String,
+}
+
+impl SummaryWithDefaultImplementation for NewsArticle {
+    fn summarize_author(&self) -> String {
+        format!("@{}", self.author)
+    }
+}
+
 
 pub(crate) fn traits() {
     println!();
@@ -147,5 +225,41 @@ pub(crate) fn traits() {
         retweet: false,
     };
 
+    // Summary trait
     println!("1 new tweet: '{}'", tweet.summarize());
+
+    // fmt::Display trait
+    println!("tweet display: '{}'", tweet);
+
+    // Traits as Parameters
+    breaking_news(&tweet);
+    breaking_news_syntax_sugar(&tweet);
+
+    // Specifying Multiple Trait Bounds with the "+" Syntax
+    notify(&tweet);
+
+    let article = NewsArticle {
+        headline: String::from("Penguins win the Stanley Cup Championship!"),
+        location: String::from("Pittsburgh, PA, USA"),
+        author: String::from("Iceburgh"),
+        content: String::from(
+            "The Pittsburgh Penguins once again are the best \
+             hockey team in the NHL.",
+        ),
+    };
+
+    // trait with default implementation
+    println!("New article available! {}", article.summarize());
+
+    // Using Trait Bounds to Conditionally Implement Methods
+    // TODO
+}
+
+pub(crate) fn lifetimes() {
+    println!();
+    println!("10. Lifetimes");
+    println!();
+
+    // Another kind of generic is called lifetimes. Rather than ensuring that a type has the behavior we want,
+    // lifetimes ensure that references are valid as long as we need them to be.
 }
