@@ -121,8 +121,8 @@ fn main() {
 
     for idx in 0..NUMBER_OF_STUDENTS {
         let tx_clone = mpsc::Sender::clone(&tx);
-        // Must use 'move' closure to use variable idx (declared in main thread) in the spawned thread.
-        // Move closure transfers ownership of values from one thread to another.
+        // A move closure transfers ownership of values from one thread to another.
+        // Needed to be able to use variable idx (declared in main thread) in each spawned thread.
         let handle = thread::spawn(move || {
             let student = Student::new(format!("{}{}", "Student_", idx + 1).as_str(), tx_clone);
             student.active_listen();
