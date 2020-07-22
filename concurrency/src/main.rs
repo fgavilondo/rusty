@@ -1,16 +1,14 @@
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
+use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
 use chrono::{DateTime, Utc};
+use lazy_static::lazy_static;
 
 const NUMBER_OF_STUDENTS: u8 = 3;
-const NUMBER_OF_CONCEPTS: u8 = 5;
-
-// pub fn type_of<T>(_: &T) -> &'static str {
-//     std::any::type_name::<T>()
-// }
+const NUMBER_OF_CONCEPTS: u8 = 6;
 
 #[derive(Debug)]
 struct ChatMessage {
@@ -29,17 +27,46 @@ impl ChatMessage {
     }
 }
 
-struct Chat {
+struct ChatScreen {
     rx: Receiver<ChatMessage>,
 }
 
-impl Chat {
+impl ChatScreen {
     fn handle_messages(&self) {
         let tid = thread::current().id();
         println!("{:?}: Chat is ready", tid);
         // receiver will block until messages arrive
         for msg in &self.rx {
-            println!("{:?}: Received {:?}", tid, msg);
+            println!("{:?} - ChatScreen received: {:?}", tid, msg);
+        }
+    }
+}
+
+lazy_static! {
+    static ref SPEAK_MUTEX: Mutex<i32> = Mutex::new(0i32);
+}
+
+fn say_stuff(stuff: &str, name: &str) {
+    let _lock = SPEAK_MUTEX.lock().unwrap();
+    println!("{:?} - {} says: {}", thread::current().id(), name, stuff);
+}
+
+struct Presenter {
+    name: String,
+}
+
+impl Presenter {
+    fn new(name: &str) -> Self {
+        Self {
+            name: String::from(name),
+        }
+    }
+
+    fn present(&self) {
+        for i in 1..NUMBER_OF_CONCEPTS + 1 {
+            say_stuff(format!("Let me tell you about thing #{} that is amazing about Rust...", i).as_str(),
+                      self.name.as_str());
+            thread::sleep(Duration::from_millis(1500));
         }
     }
 }
@@ -59,30 +86,14 @@ impl Student {
 
     fn active_listen(&self) {
         for i in 1..NUMBER_OF_CONCEPTS + 1 {
-            let message = ChatMessage::new(&self.name, format!("Thing #{} understood", i).as_str());
-            self.tx.send(message).unwrap();
-            thread::sleep(Duration::from_millis(1200));
-        }
-    }
-}
-
-struct Presenter {
-    name: String,
-}
-
-impl Presenter {
-    fn new(name: &str) -> Self {
-        Self {
-            name: String::from(name),
-        }
-    }
-
-    fn present(&self) {
-        let tid = thread::current().id();
-        for i in 1..NUMBER_OF_CONCEPTS + 1 {
-            println!();
-            println!("{:?}: {} says: Thing #{} that is great about Rust...", tid, self.name, i);
-            thread::sleep(Duration::from_millis(1000));
+            if i % 3 == 0 {
+                say_stuff(format!("Amazing thing #{} sounds tricky", i).as_str(), self.name.as_str());
+            } else {
+                let message = ChatMessage::new(&self.name,
+                                               format!("Amazing thing #{} is cool", i).as_str());
+                self.tx.send(message).unwrap();
+            }
+            thread::sleep(Duration::from_millis(1700));
         }
     }
 }
@@ -92,17 +103,17 @@ fn main() {
     println!("{:?}: Start of training session", thread::current().id());
 
     let (tx, rx) = mpsc::channel();
+    let mut thread_handles = vec![];
 
     // Must use 'move' closure to use variable rx (declared in main thread) in the spawned thread.
     // Move closure transfers ownership of values from one thread to another.
     thread::spawn(move || {
-        let chat = Chat {
+        let chat = ChatScreen {
             rx,
         };
         chat.handle_messages();
     });
 
-    let mut thread_handles: Vec<thread::JoinHandle<()>> = Vec::new();
 
     let handle = thread::spawn(|| {
         // Disclaimer: Any resemblance to real persons is purely coincidental!
@@ -121,8 +132,8 @@ fn main() {
     }
 
     // block the main thread until all threads have finished (except the chat, which never finishes)
-    for h in thread_handles {
-        h.join().unwrap();
+    for handle in thread_handles {
+        handle.join().unwrap();
     }
 
     println!();
