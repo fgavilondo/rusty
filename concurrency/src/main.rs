@@ -87,10 +87,10 @@ impl Student {
     fn active_listen(&self) {
         for i in 1..NUMBER_OF_CONCEPTS + 1 {
             if i % 3 == 0 {
-                say_stuff(format!("Amazing thing #{} sounds tricky", i).as_str(), self.name.as_str());
+                say_stuff(format!("Amazing thing #{} sounds tricky :-(", i).as_str(), self.name.as_str());
             } else {
                 let message = ChatMessage::new(&self.name,
-                                               format!("Amazing thing #{} is cool", i).as_str());
+                                               format!("Amazing thing #{} is cool!", i).as_str());
                 self.tx.send(message).unwrap();
             }
             thread::sleep(Duration::from_millis(1700));
@@ -125,7 +125,7 @@ fn main() {
     for idx in 0..NUMBER_OF_STUDENTS {
         let tx_clone = mpsc::Sender::clone(&tx);
         let handle = thread::spawn(move || {
-            let student = Student::new(format!("{}{}", "Student_", idx).as_str(), tx_clone);
+            let student = Student::new(format!("{}{}", "Student_", idx + 1).as_str(), tx_clone);
             student.active_listen();
         });
         thread_handles.push(handle);
