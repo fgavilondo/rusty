@@ -105,15 +105,12 @@ fn main() {
     let (tx, rx) = mpsc::channel();
     let mut thread_handles = vec![];
 
-    // Must use 'move' closure to use variable rx (declared in main thread) in the spawned thread.
-    // Move closure transfers ownership of values from one thread to another.
-    thread::spawn(move || {
+    thread::spawn(|| {
         let chat = ChatScreen {
             rx,
         };
         chat.handle_messages();
     });
-
 
     let handle = thread::spawn(|| {
         // Disclaimer: Any resemblance to real persons is purely coincidental!
@@ -124,6 +121,8 @@ fn main() {
 
     for idx in 0..NUMBER_OF_STUDENTS {
         let tx_clone = mpsc::Sender::clone(&tx);
+        // Must use 'move' closure to use variable idx (declared in main thread) in the spawned thread.
+        // Move closure transfers ownership of values from one thread to another.
         let handle = thread::spawn(move || {
             let student = Student::new(format!("{}{}", "Student_", idx + 1).as_str(), tx_clone);
             student.active_listen();
