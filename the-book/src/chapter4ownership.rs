@@ -119,7 +119,7 @@ fn try_to_change_borrowed_immutable(some_string: &String) {
     // We’re not allowed to modify something we have a reference to.
     // Compile error: cannot borrow `*some_string` as mutable, as it is behind a `&` reference
     // some_string.push_str(", world");
-    println!("some_string in change_borrowed() = {}", some_string);
+    println!("some_string in try_to_change_borrowed_immutable() = {}", some_string);
 }
 
 fn change_borrowed_mutable(some_string: &mut String) {
