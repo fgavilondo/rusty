@@ -44,6 +44,7 @@ pub(crate) fn variables() {
     // Since the size is unknown, one can only handle it behind a pointer.
     // This means that str most commonly appears as &str: a reference to some UTF-8 data,
     // normally called a "string slice" or just a "slice".
+    // As opposed to str, the slice data structure (&str) stores the starting position and the length of the slice.
 
     // String is the dynamic heap string type, like Vec: use it when you need to own or modify
     // your string data. String keeps the buffer and is very practical to use.

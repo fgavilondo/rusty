@@ -5,6 +5,7 @@ use crate::typeutils;
 struct User {
     // Note: if we wanted to use &str instead of String it would require the use of lifetimes (Chapter 10).
     // Lifetimes ensure that the data referenced by a struct is valid for as long as the struct is.
+    // https://stackoverflow.com/questions/25754863/how-to-create-a-rust-struct-with-string-members
     username: String,
     email: String,
     sign_in_count: u64,
