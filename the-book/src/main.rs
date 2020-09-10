@@ -18,7 +18,7 @@ fn main() {
 
     chapter3commonconcepts::variables();
     chapter3commonconcepts::scalar_data_types();
-    chapter3commonconcepts::compound_data_types();
+    chapter3commonconcepts::compound_data_types_tuples_and_arrays();
     chapter3commonconcepts::control_flow();
 
     chapter4ownership::move_with_variables();

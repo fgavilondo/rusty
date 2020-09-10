@@ -108,7 +108,7 @@ fn each_plus_one(arr: &mut [i32; 5]) {
     }
 }
 
-pub(crate) fn compound_data_types() {
+pub(crate) fn compound_data_types_tuples_and_arrays() {
     println!();
     println!("3.2.2 Compound Data Types");
     println!();
@@ -130,6 +130,10 @@ pub(crate) fn compound_data_types() {
 
     let tup2: (i32, f64, u8) = (200, 2.4, 2); // with explicit type annotation
     println!("tup2 (pretty print) = {:#?}", tup2);
+
+    // tuple with only one element:
+    let tuple_of_one: (i32, ) = (200, );
+    println!("tuple_of_one (pretty print) = {:#?}", tuple_of_one);
 
     println!();
     println!("Arrays:");
