@@ -8,6 +8,7 @@ mod chapter9error_handling;
 mod chapter10generics;
 mod chapter11unit_tests;
 mod chapter15concurrency;
+mod chapter19macros;
 // the above lines tell Rust to load the contents of the modules from files with the same name as the module
 
 // Based on online book: The Rust Programming Language
@@ -48,5 +49,8 @@ fn main() {
     chapter10generics::lifetimes();
 
     chapter15concurrency::threads();
+
+    chapter19macros::declarative_macros();
+    chapter19macros::procedural_macros();
 }
 
