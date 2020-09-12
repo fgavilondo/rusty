@@ -111,11 +111,10 @@ pub(crate) fn propagating_errors_with_operator() -> Result<String, io::Error> {
     println!("9. Error Handling - Propagating Errors (with ? operator)");
     println!();
 
-    // This pattern of propagating errors is so common in Rust that Rust provides the question mark operator ?
-    // to make this easier.
-
     let mut s = String::new();
 
+    // The above pattern of propagating errors is so common in Rust that Rust provides the question mark operator ?
+    // to make this easier.
     // The ? placed after a Result value is defined to work in almost the same way as the match expressions we
     // defined to handle the Result values above. If the value of the Result is an Ok, the value inside the Ok will
     // get returned from this expression, and the program will continue.

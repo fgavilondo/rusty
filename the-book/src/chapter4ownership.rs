@@ -34,12 +34,12 @@ pub(crate) fn move_with_variables() {
     println!("s2 still = {}", s2);
 }
 
-fn takes_ownership(some_string: String) { // some_string comes into scope
+fn takes_ownership_of_heap_type(some_string: String) { // some_string comes into scope
     println!("some_string = {}", some_string);
     // Here, some_string goes out of scope and `drop` is called. The backing memory is freed.
 }
 
-fn makes_copy(some_integer: i32) { // some_integer comes into scope
+fn makes_copy_of_scalar_type(some_integer: i32) { // some_integer comes into scope
     println!("some_integer = {}", some_integer);
     // Here, some_integer goes out of scope. Nothing special happens.
 }
@@ -52,7 +52,7 @@ fn gives_ownership() -> String {
 }
 
 // takes_and_gives_back will take a String and return one
-fn takes_and_gives_back(a_string: String) -> String {
+fn takes_and_gives_back_ownership(a_string: String) -> String {
     // a_string comes into scope
     a_string
     // a_string is returned and moves out to the calling function
@@ -75,12 +75,12 @@ pub(crate) fn move_with_functions() {
     let s = String::from("hello"); // s comes into scope
 
     // s's value moves into the function and so is no longer valid here
-    takes_ownership(s);
+    takes_ownership_of_heap_type(s);
     // compile error: "borrow of moved value: s"
     // println!("s = {}", s);
 
     let x = 5;  // x comes into scope
-    makes_copy(x);
+    makes_copy_of_scalar_type(x);
     // x would move into the function, but i32 implements Copy trait (stack value),
     // so it’s okay to still use x afterward
     println!("x = {}", x);
@@ -91,7 +91,7 @@ pub(crate) fn move_with_functions() {
     println!("s_that_came_from_a_function = {}", s_that_came_from_a_function);
 
     let s3 = String::from("hello");    // s3 comes into scope
-    let s_passed_through_a_function = takes_and_gives_back(s3);
+    let s_passed_through_a_function = takes_and_gives_back_ownership(s3);
     // s3 is moved into takes_and_gives_back(), which also moves its return value into s4
     println!("s_passed_through_a_function = {}", s_passed_through_a_function);
     // println!("s3 = {}", s3); // value borrowed here after move
