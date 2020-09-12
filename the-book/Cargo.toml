@@ -8,3 +8,4 @@ edition = "2018"
 
 # external packages we depend on specified below
 [dependencies]
+futures = "0.3.5"

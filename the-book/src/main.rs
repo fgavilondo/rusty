@@ -1,3 +1,8 @@
+// Based on online book: The Rust Programming Language
+// https://doc.rust-lang.org/book/title-page.html
+
+use futures::executor::block_on;
+
 mod typeutils;
 mod chapter3commonconcepts;
 mod chapter4ownership;
@@ -11,10 +16,43 @@ mod chapter15concurrency;
 mod chapter19macros;
 // the above lines tell Rust to load the contents of the modules from files with the same name as the module
 
-// Based on online book: The Rust Programming Language
-// https://doc.rust-lang.org/book/title-page.html
+async fn print_one() {
+    print!(" 1 ");
+}
+
+async fn print_one_two() {
+    // Inside an async fn, you can use .await to wait for the completion of another type that implements
+    // the Future trait, such as the output of another async fn.
+    // Unlike block_on(), .await doesn't block the current thread, but instead asynchronously waits for
+    // the future to complete.
+    print_one().await;
+    print!(" 2 ");
+}
+
+async fn print_three() {
+    print!(" 3 ");
+}
+
+async fn print_one_two_three_maybe() {
+    let f1 = print_one_two();
+    let f2 = print_three();
+
+    // `join!` is like `.await` but can wait for multiple futures concurrently.
+    // If we're temporarily blocked in one future, another
+    // future will take over the current thread. If both futures are blocked, then
+    // this function is blocked and will yield to the executor.
+    futures::join!(f1, f2);
+}
 
 fn main() {
+    println!("async/await example");
+    println!();
+
+    // `block_on` blocks the current thread until the provided future has run to
+    // completion. Other executors provide more complex behavior, like scheduling
+    // multiple futures onto the same thread.
+    block_on(print_one_two_three_maybe());
+
     println!();
 
     chapter3commonconcepts::variables();
